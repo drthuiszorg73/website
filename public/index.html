@@ -230,13 +230,12 @@
     let sortedLogs = [];
     let sortState = { column: null, direction: 'asc' };
 
-    async function login() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const errorDiv = document.getElementById('loginError');
+    const API_BASE_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000'
+        : 'https://share-f3ad.vercel.app';
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -271,7 +270,7 @@
 
     async function updateUserList() {
         try {
-            const response = await fetch('http://localhost:5000/api/logs/view', {
+            const response = await fetch(`${API_BASE_URL}/api/logs/view`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -293,7 +292,7 @@
 
     async function showLogs() {
         try {
-            const response = await fetch('http://localhost:5000/api/logs/view', {
+            const response = await fetch(`${API_BASE_URL}/api/logs/view`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }

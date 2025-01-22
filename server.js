@@ -9,34 +9,43 @@ require('dotenv').config();
 
 const app = express();
 
+// Connect to MongoDB
 connectDB();
 
+// Middleware configuration
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://website-h8qt.vercel.app' : '*',
-    credentials: true,
+    origin: 'https://website-h8qt.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
 }));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static('public'));
+// Static files serving
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/logs', logRoutes);
 
+// Test endpoint
 app.get('/api/test', (req, res) => {
     res.send("Backend is working");
 });
 
-app.use('/api/auth', authRoutes);
-
-app.use('/api/logs', logRoutes);
-
-app.get('/api/user/logs', protect, (req, res) => {
-    if (req.user && req.user.isAdmin) {
-        res.send('Admin view logs here');
+// Protected admin route
+app.get('/api/admin/logs', protect, (req, res) => {
+    if (req.user?.isAdmin) {
+        res.json({ message: 'Admin logs view' });
     } else {
-        res.send('User view their own logs here');
+        res.status(403).json({ message: 'Unauthorized' });
     }
+});
+
+// Client-side routing handler (MUST BE LAST ROUTE)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;

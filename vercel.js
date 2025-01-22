@@ -1,11 +1,19 @@
-const express = require('express');
-const app = express();
-
-app.get('/api/test', (req, res) => {
-    res.send("Backend is working");
-});
-
-const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "./share/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/share/server.js"
+    },
+    {
+      "src": "/",
+      "dest": "/share/public/index.html"
+    }
+  ]
+}

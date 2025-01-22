@@ -12,7 +12,7 @@ const app = express();
 connectDB();
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://website-h8qt-a6m5tao6u-drthuiszorg73s-projects.vercel.app' : '*',
+  origin: process.env.NODE_ENV === 'production' ? 'https://website-h8qt.vercel.app/' : '*',
   credentials: true,
 }));
 app.use(express.json());

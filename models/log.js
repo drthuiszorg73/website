@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const LogSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    clientName: { type: String, required: true },
-    startTime: { type: Date, required: true },
-    endTime: { type: Date, required: true },
-}, { timestamps: true });
+const logSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now }
+});
 
-module.exports = mongoose.model('Log', LogSchema);
+module.exports = mongoose.model('Log', logSchema);

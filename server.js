@@ -12,8 +12,8 @@ const app = express();
 connectDB();
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://website-h8qt.vercel.app/' : '*',
-  credentials: true,
+    origin: process.env.NODE_ENV === 'production' ? 'https://website-h8qt.vercel.app' : '*',
+    credentials: true,
 }));
 app.use(express.json());
 
@@ -21,6 +21,10 @@ app.use(express.static('public'));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/api/test', (req, res) => {
+    res.send("Backend is working");
 });
 
 app.use('/api/auth', authRoutes);

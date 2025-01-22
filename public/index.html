@@ -176,7 +176,6 @@
     <div class="form-container">
         <h3>1 Stop Toevoegen</h3>
         <input id="clientName" placeholder="Client Naam" />
-        <input type="date" id="stopDate" />
         <input type="time" id="startTime" placeholder="Start Tijd" />
         <input type="time" id="endTime" placeholder="Eind Tijd" />
         <button onclick="addSingleStop()">Voeg Stop Toe</button>
@@ -189,7 +188,6 @@
         <h3>Meerdere Stops Toevoegen</h3>
         <div id="multipleStopsInputs">
             <input id="multipleClientName" placeholder="Client Naam" />
-            <input type="date" id="multipleStopDate" />
             <input type="time" id="multipleStartTime" placeholder="Start Tijd" />
             <input type="time" id="multipleEndTime" placeholder="Eind Tijd" />
             <button onclick="addMultipleStops()">Voeg Meerdere Stops Toe</button>
@@ -232,8 +230,14 @@
 
     const API_BASE_URL = window.location.hostname === 'localhost' 
         ? 'http://localhost:5000'
-        : 'https://share-f3ad.vercel.app';
+        : window.location.origin;
 
+        
+    async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('loginError');
+        
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
@@ -260,10 +264,15 @@
                 
                 errorDiv.textContent = '';
             } else {
-                errorDiv.textContent = data.message || 'Inloggen mislukt';
+               if (data && data.message) {
+                    errorDiv.textContent = `Login mislukt: ${data.message}`; // More descriptive error message
+                } else {
+                    errorDiv.textContent = 'Inloggen mislukt. Er ging iets fout.';
+                }
                 authToken = null;
             }
         } catch (error) {
+             console.error('Login error:', error);
             errorDiv.textContent = 'Er is een fout opgetreden bij het inloggen';
         }
     }
@@ -515,6 +524,77 @@
 
     doc.save('Logs.pdf');
 }
+
+    async function addSingleStop() {
+        const clientName = document.getElementById('clientName').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+    
+        const currentDate = new Date();
+        const stopDate = currentDate.toISOString().split('T')[0];
+    
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/logs/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    clientName,
+                    startTime: `${stopDate}T${startTime}:00.000Z`,
+                    endTime: `${stopDate}T${endTime}:00.000Z`
+                })
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                alert('Stop toegevoegd!');
+                navigateTo('mainScreen');
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error adding log:', error);
+            alert('Fout bij het toevoegen van de stop.');
+        }
+    }
+
+    async function addMultipleStops() {
+        const clientName = document.getElementById('multipleClientName').value;
+        const startTime = document.getElementById('multipleStartTime').value;
+        const endTime = document.getElementById('multipleEndTime').value;
+        
+        const currentDate = new Date();
+        const stopDate = currentDate.toISOString().split('T')[0];
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/logs/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    clientName,
+                    startTime: `${stopDate}T${startTime}:00.000Z`,
+                    endTime: `${stopDate}T${endTime}:00.000Z`
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Stop toegevoegd!');
+                navigateTo('mainScreen');
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error adding log:', error);
+            alert('Fout bij het toevoegen van de stop.');
+        }
+    }
+    
 
     function logout() {
         currentUser = null;

@@ -1,32 +1,47 @@
 const express = require('express');
 const router = express.Router();
+const Log = require('../models/log');
 const { protect } = require('../middleware/auth');
-const Log = require('../models/Log');
 
-router.get('/', protect, async (req, res) => {
+// Route to add a log (a stop)
+router.post('/add', protect, async (req, res) => {
+    const { clientName, startTime, endTime } = req.body;
+    const user = req.user;
+    
     try {
-        if (!req.user.isAdmin) {
-            // Regular user: get their own logs
-            const logs = await Log.find({ user: req.user._id });
-            res.json(logs);
-        } else {
-            // Admin: get all logs
-            const logs = await Log.find().populate('user', 'name');
-            res.json(logs);
+        if (!clientName || !startTime || !endTime) {
+            return res.status(400).json({ message: 'All fields are required.' });
         }
+        if (!user) {
+            return res.status(400).json({ message: 'User not authenticated' });
+        }
+
+        const newLog = new Log({
+            username: user.username,
+            clientName,
+            startTime,
+            endTime
+        });
+
+        await newLog.save();
+        res.status(201).json({ message: 'Log added successfully', log: newLog });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error adding log:', error);
+        res.status(500).json({ message: 'Error saving log' });
     }
 });
 
-router.post('/', protect, async (req, res) => {
+// Route to get logs - handles both admin and regular users
+router.get('/view', protect, async (req, res) => {
+    const user = req.user;
     try {
-        req.body.user = req.user._id;
-        const log = new Log(req.body);
-        await log.save();
-        res.status(201).json(log);
+        // If user is admin, return all logs, otherwise return only user's logs
+        const query = user.isAdmin ? {} : { username: user.username };
+        const logs = await Log.find(query).sort({ startTime: -1 });
+        res.status(200).json(logs);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Error fetching logs' });
     }
 });
 

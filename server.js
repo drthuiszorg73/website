@@ -35,6 +35,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/logs', logRoutes);
 
+// Add this ABOVE other routes
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK',
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// Modify your catch-all route to THIS:
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: 'Endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Enhanced Test Endpoint
 app.get('/api/test', (req, res) => {
   res.json({

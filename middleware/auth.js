@@ -1,27 +1,24 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user'); // Ensure the User model path is correct
+const User = require('../models/user');
 
 exports.protect = async (req, res, next) => {
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            token = req.headers.authorization.split(' ')[1]; // Extract token
+            token = req.headers.authorization.split(' ')[1];
 
-            // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            console.log('Decoded JWT in middleware:', decoded); // Debugging
+            console.log('Decoded JWT in middleware:', decoded);
 
-            // Use `userId` from the token instead of `id`
-            const user = await User.findById(decoded.userId).select('-password'); // Exclude password
+            const user = await User.findById(decoded.userId).select('-password');
 
             if (!user) {
                 console.error('User not found with ID:', decoded.userId);
                 return res.status(401).json({ message: 'User not found' });
             }
 
-            // Attach user object to the request
             req.user = user;
             next();
         } catch (err) {

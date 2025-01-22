@@ -265,7 +265,7 @@
                 errorDiv.textContent = '';
             } else {
                if (data && data.message) {
-                    errorDiv.textContent = `Login mislukt: ${data.message}`; // More descriptive error message
+                    errorDiv.textContent = `Login mislukt: ${data.message}`;
                 } else {
                     errorDiv.textContent = 'Inloggen mislukt. Er ging iets fout.';
                 }
@@ -436,8 +436,8 @@
     const headers = ['Gebruiker', 'Client', 'Datum', 'Starttijd', 'Eindtijd', 'Duur'];
     const columnWidths = [45, 45, 35, 35, 35, 35];
     const maxRowsPerPage = 25;
-    const lineHeight = 5; // Height of one line of text
-    const cellPadding = 2; // Padding inside cells
+    const lineHeight = 5;
+    const cellPadding = 2;
     
     function getTextLines(text, maxWidth) {
         const words = text.toString().split(' ');
@@ -472,8 +472,7 @@
     startY = addTableHeader(startY);
 
     sortedLogs.forEach((log, index) => {
-        // Check if we need a new page
-        if (startY > 200) { // Adjust this value based on your needs
+        if (startY > 200) {
             doc.addPage();
             startY = 20;
             startY = addTableHeader(startY);
@@ -492,8 +491,7 @@
             `${duration} minuten`
         ];
 
-        // Calculate maximum height needed for this row
-        let maxHeight = 8; // minimum height
+        let maxHeight = 8;
         rowData.forEach((data, colIndex) => {
             const maxWidth = columnWidths[colIndex] - (cellPadding * 2);
             const lines = getTextLines(data, maxWidth);
@@ -501,18 +499,13 @@
             maxHeight = height;
         });
 
-        // Draw cells and text
         rowData.forEach((data, colIndex) => {
             const x = 10 + columnWidths.slice(0, colIndex).reduce((sum, width) => sum + width, 0);
-            
-            // Draw cell rectangle
             doc.rect(x, startY, columnWidths[colIndex], maxHeight);
             
-            // Handle text wrapping
             const maxWidth = columnWidths[colIndex] - (cellPadding * 2);
             const lines = getTextLines(data, maxWidth);
             
-            // Draw each line of text
             lines.forEach((line, lineIndex) => {
                 const textY = startY + cellPadding + (lineHeight * (lineIndex + 1));
                 doc.text(line, x + cellPadding, textY);

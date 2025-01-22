@@ -1,50 +1,40 @@
 const express = require('express');
-const cors = require('cors'); // Added CORS
+const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
-const logRoutes = require('./routes/logs'); // Import the log routes
+const logRoutes = require('./routes/logs');
 const { protect } = require('./middleware/auth');
 const path = require('path');
-require('dotenv').config(); // Ensure environment variables are loaded
+require('dotenv').config();
 
 const app = express();
 
-// Connect to MongoDB
 connectDB();
 
-// Middleware
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://your-vercel-app-url.vercel.app' : '*', // Replace with your Vercel domain
-    credentials: true,
-})); // Enable CORS for all routes
-app.use(express.json()); // Allows parsing JSON request bodies
+  origin: process.env.NODE_ENV === 'production' ? 'https://website-h8qt-a6m5tao6u-drthuiszorg73s-projects.vercel.app' : '*',
+  credentials: true,
+}));
+app.use(express.json());
 
-// Serve static files from the "public" directory
 app.use(express.static('public'));
 
-// Route to serve the index.html when visiting the root URL
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Use the auth routes for login and registration
 app.use('/api/auth', authRoutes);
 
-// Log routes for adding and viewing logs
-app.use('/api/logs', logRoutes); // Register the log routes
+app.use('/api/logs', logRoutes);
 
-// Sample protected route for user logs (this can be extended for admin view)
 app.get('/api/user/logs', protect, (req, res) => {
     if (req.user && req.user.isAdmin) {
-        // Admin can view all users' logs here (future functionality)
         res.send('Admin view logs here');
     } else {
-        // Users can only view their own logs
         res.send('User view their own logs here');
     }
 });
 
-// Start server on port specified in .env or default to 5000
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
